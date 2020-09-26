@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Registratsioon</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ==" crossorigin="anonymous" />
+    <link rel="shortcut icon" type="image/png" href="{% static 'reg/favicon.ico' %}"/>
+</head>
+<body>
+<div class="ui container middle aligned">
+
+    {% if messages %}
+        <div class="ui large success message">
+            {% for message in messages %}
+            <div  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> <strong>{{ message }}</strong> </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="ui attached brown message">
+        <div class="header">
+            Registreeru peole!
+        </div>
+    </div>
+    <form class="ui form attached brown fluid segment" action="." method="post" onsubmit="return validate()">
+        {% csrf_token %}
+        <div class="field">
+            <label>Nimi</label>
+            {{ form.nimi }}
+        </div>
+        <br>
+        <div class="field">
+            <label>E-post</label>
+            {{ form.epost }}
+        </div>
+        <br>
+        <button class="ui yellow button" id="reg" type="submit">Registreeri</button>
+    </form>
+
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var esitatud = false;
+
+        <!-- Kohandatud veateade liiga lühikese nime korral -->
+        var nimi = document.getElementById("nimi");
+        nimi.oninvalid = function(e) {
+            esitatud = true;
+            e.target.setCustomValidity("");
+            if (!e.target.validity.valid) {
+                e.target.setCustomValidity("Sisesta oma täisnimi");
+            }
+        };
+
+        nimi.oninput = function(e) {
+            if (esitatud) {
+                if (nimi.value.length >= {{ nameLen }}) {
+                    e.target.setCustomValidity("");
+                } else {
+                    e.target.setCustomValidity("Sisesta oma täisnimi");
+                }
+            }
+        };
+
+        <!-- Kohandatud veateade ebakorrektse e-posti aadressi korral -->
+        var epost = document.getElementById("epost");
+        epost.oninvalid = function(e) {
+            esitatud = true;
+            e.target.setCustomValidity("");
+            if (!e.target.validity.valid) {
+                e.target.setCustomValidity("Sisesta oma e-posti aadress");
+            }
+        };
+
+
+        epost.oninput = function (e) {
+            if (esitatud) {
+                <!-- regexi allikas - developer.mozilla.org/en-US/docs/Web/HTML/Element/input/email#Validation  -->
+                if (/^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(epost.value)) {
+                    e.target.setCustomValidity("");
+                } else {
+                    e.target.setCustomValidity("Sisesta oma e-posti aadress");
+                }
+            }
+        };
+
+    })
+</script>
+</body>
+</html>
